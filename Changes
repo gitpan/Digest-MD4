@@ -15,4 +15,8 @@ Tim Meadowcroft <Tim.Meadowcroft@swapswire.com>. Thanks Tim.
 
 Rebuilt from Digest::MD5 1.30, to acheive Digest:: spec compatibility
 
+*** 2003/11/28 Version 1.3
+
+Fixed compile errors reported while being built unders windows cywin with Perl 5.8.2
+
 

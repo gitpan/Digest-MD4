@@ -311,10 +311,10 @@ unsigned char block[64];
   HH (c, d, a, b, x[ 7], S33); /* 47 */
   HH (b, c, d, a, x[15], S34); /* 48 */
 
-  state[0] += a; TRUNC32(state[0])
-  state[1] += b; TRUNC32(state[1])
-  state[2] += c; TRUNC32(state[2])
-  state[3] += d; TRUNC32(state[3])
+  state[0] += a; TRUNC32(state[0]);
+  state[1] += b; TRUNC32(state[1]);
+  state[2] += c; TRUNC32(state[2]);
+  state[3] += d; TRUNC32(state[3]);
 }
 
 #ifdef MD4_DEBUG
