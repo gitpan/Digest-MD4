@@ -1,0 +1,7 @@
+Revision history for Perl extension Digest::MD4.
+
+*** 2000/08/26 Version 1.0
+
+Built by adapting MD5, code from RFC 1320. Some test data from 
+draft-ietf-pppext-mschap-00.txt
+

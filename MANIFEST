@@ -1,0 +1,13 @@
+README			Guess what?
+MANIFEST		This file
+MD4.pm			MD4 Perl Module
+MD4.xs			MD4 Perl 'XS' source file
+typemap			Supplementary typemap
+Makefile.PL		Perl Makefile builder
+md4c.c			MD4 C source from RFC 1320
+md4.h			Header for above
+global.h		ditto
+test.pl			Test suite using standard Perl conventions
+Changes			Version history
+examples/mddriver.pl	Example driver script after mddriver.c in RFC 1321
+examples/twdigest.pl	Example code to format a digest like Tripwire
