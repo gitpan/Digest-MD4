@@ -1,4 +1,4 @@
-# $Id: MD4.pm,v 1.1 2000/08/27 23:12:24 mikem Exp $
+# $Id: MD4.pm,v 1.2 2001/07/30 21:58:13 mikem Exp $
 package Digest::MD4;
 
 use strict;
@@ -15,7 +15,7 @@ require AutoLoader;
 @EXPORT = qw(
 	
 );
-$VERSION = '1.0';
+$VERSION = '1.1';
 
 bootstrap Digest::MD4 $VERSION;
 
@@ -43,6 +43,7 @@ sub addfile
     {
 	$self->add($data);
     }
+    return $self;
 }
 
 sub hexdigest

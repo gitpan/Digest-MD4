@@ -5,7 +5,7 @@
 **
 **	This module originally by Neil Winton (N.Winton@axion.bt.co.uk)
 **      Adapted by Mike McCauley mikem@open.com.au
-**	$Id: MD4.xs,v 1.1 2000/08/27 23:12:24 mikem Exp $	
+**	$Id: MD4.xs,v 1.3 2001/07/30 23:39:57 mikem Exp $	
 **
 **	This extension may be distributed under the same terms
 **	as Perl. The MD4 code is covered by separate copyright and
@@ -54,15 +54,17 @@ DESTROY(context)
 	    safefree((char *)context);
 	}
 
-void
+
+Digest::MD4
 reset(context)
 	Digest::MD4	context
     CODE:
 	{
 	    MD4Init(context);
+	    RETVAL = context;
 	}
 
-void
+Digest::MD4
 add(context, ...)
 	Digest::MD4	context
     CODE:
@@ -77,6 +79,7 @@ add(context, ...)
 		data = (unsigned char *)(SvPV(ST(i), len));
 		MD4Update(context, data, len);
 	    }
+	    RETVAL = context;
 	}
 
 SV *

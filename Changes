@@ -5,3 +5,9 @@ Revision history for Perl extension Digest::MD4.
 Built by adapting MD5, code from RFC 1320. Some test data from 
 draft-ietf-pppext-mschap-00.txt
 
+*** 2001/07/28 Version 1.1
+
+Fixed compatibility with Digest::HMAC. add and reset now return
+their context, suggested by 
+Tim Meadowcroft <Tim.Meadowcroft@swapswire.com>. Thanks Tim.
+
