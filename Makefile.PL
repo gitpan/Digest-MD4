@@ -1,13 +1,131 @@
-# $Id: Makefile.PL,v 1.1 2000/08/27 23:12:24 mikem Exp $
+#!perl -w
+
+BEGIN { require 5.004 }
+use strict;
+use Config qw(%Config);
 use ExtUtils::MakeMaker;
-# See lib/ExtUtils/MakeMaker.pm for details of how to influence
-# the contents of the Makefile that is written.
+
+my @extra;
+@extra = (DEFINE => "-DU32_ALIGNMENT_REQUIRED") unless free_u32_alignment();
+
+if ($^O eq 'VMS') {
+    if (defined($Config{ccname})) {
+        if (grep(/VMS_VAX/, @INC) && ($Config{ccname} eq 'DEC')) {
+            # VAX compiler optimizer even as late as v6.4 gets stuck
+            push(@extra, OPTIMIZE => "/Optimize=(NODISJOINT)");
+        }
+    }
+}
+
+push(@extra, 'INSTALLDIRS'  => 'perl') if $] >= 5.008;
+
 WriteMakefile(
-    'NAME'	=> 'Digest::MD4',
-    'VERSION_FROM' => 'MD4.pm', # finds $VERSION
-    'LIBS'	=> [''],   # e.g., '-lm' 
-    'CONFIG'	=> ['byteorder'],	# Used to determine 64-bitness
-    'DEFINE'	=> '-DPERL_BYTEORDER=$(BYTEORDER)',
-    'INC'	=> '',     # e.g., '-I/usr/include/other' 
-    'OBJECT'	=> q[MD4$(OBJ_EXT) md4c$(OBJ_EXT)],
+    'NAME'	   => 'Digest::MD4',
+    'VERSION_FROM' => 'MD4.pm',
+    'PREREQ_PM'    => { 'File::Spec' => 0 },
+    @extra,
+    'dist'         => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
 );
+
+
+
+sub free_u32_alignment
+{
+    $|=1;
+    print "Testing alignment requirements for U32... ";
+    return 1 if $^O eq 'VMS';
+    return 1 if $^O eq 'MSWin32';
+
+    open(ALIGN_TEST, ">u32align.c") or die "$!";
+    print ALIGN_TEST <<'EOT'; close(ALIGN_TEST);
+/*--------------------------------------------------------------*/
+/*  This program allocates a buffer of U8 (char) and then tries */
+/*  to access it through a U32 pointer at every offset.  The    */
+/*  program  is expected to die with a bus error/seg fault for  */
+/*  machines that do not support unaligned integer read/write   */
+/*--------------------------------------------------------------*/
+
+#include <stdio.h>
+#include "EXTERN.h"
+#include "perl.h"
+
+#ifdef printf
+ #undef printf
+#endif
+
+int main(int argc, char** argv, char** env)
+{
+#if BYTEORDER == 0x1234 || BYTEORDER == 0x4321
+    U8 buf[] = "\0\0\0\1\0\0\0\0";
+    U32 *up;
+    int i;
+
+    if (sizeof(U32) != 4) {
+	printf("sizeof(U32) is not 4, but %d\n", sizeof(U32));
+	exit(1);
+    }
+
+    fflush(stdout);
+
+    for (i = 0; i < 4; i++) {
+	up = (U32*)(buf + i);
+	if (! ((*up == 1 << (8*i)) ||   /* big-endian */
+	       (*up == 1 << (8*(3-i)))  /* little-endian */
+	      )
+	   )
+	{
+	    printf("read failed (%x)\n", *up);
+	    exit(2);
+	}
+    }
+
+    /* write test */
+    for (i = 0; i < 4; i++) {
+	up = (U32*)(buf + i);
+	*up = 0xBeef;
+	if (*up != 0xBeef) {
+	    printf("write failed (%x)\n", *up);
+	    exit(3);
+	}
+    }
+
+    printf("no restrictions\n");
+    exit(0);
+#else
+    printf("unusual byteorder, playing safe\n");
+    exit(1);
+#endif
+    return 0;
+}
+/*--------------------------------------------------------------*/
+EOT
+
+    my $cc_cmd = "$Config{cc} $Config{ccflags} -I$Config{archlibexp}/CORE";
+    my $exe = "u32align$Config{exe_ext}";
+    $cc_cmd .= " -o $exe";
+    my $rc;
+    $rc = system("$cc_cmd $Config{ldflags} u32align.c $Config{libs}");
+    if ($rc) {
+	print "Can't compile test program.  Will ensure alignment to play safe.\n\n";
+	unlink("u32align.c", $exe, "u32align$Config{obj_ext}");
+	return 0;
+    }
+
+    $rc = system("./$exe");
+    unlink("u32align.c", $exe, "u32align$Config{obj_ext}");
+
+    return 1 unless $rc;
+
+    if ($rc > 0x80) {
+	$rc >>= 8;
+	print "Test program exit status was $rc\n";
+    } else {
+	if ($rc & 0x80) {
+	    $rc &= ~0x80;
+	    print "Core dump deleted\n";
+	    unlink("core");
+	}
+	print "signal $rc\n";
+    }
+    return 0;
+}

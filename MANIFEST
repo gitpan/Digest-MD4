@@ -1,13 +1,17 @@
 README			Guess what?
 MANIFEST		This file
-MD4.pm			MD4 Perl Module
+MD4.pm			Digest::MD4 Perl Module
+hints/dec_osf.pl	Workaround for DEC compiler bug
+hints/irix_6.pl		Workaround for IRIX compiler bug
+hints/MacOS.pl		Workaround for Mac compiler bug
 MD4.xs			MD4 Perl 'XS' source file
 typemap			Supplementary typemap
 Makefile.PL		Perl Makefile builder
-md4c.c			MD4 C source from RFC 1320
-md4.h			Header for above
-global.h		ditto
-test.pl			Test suite using standard Perl conventions
+rfc1320.txt		The MD4 Message-Digest Algorithm
+t/align.t		Try unaligned memory blocks
+t/badfile.t             Try addfile() on unopened file
+t/clone.t		Try clone() method.
+t/files.t		Check a few files.
+t/md4-aaa.t		Exercise padding code
+t/utf8.t		Try some Unicode strings
 Changes			Version history
-examples/mddriver.pl	Example driver script after mddriver.c in RFC 1321
-examples/twdigest.pl	Example code to format a digest like Tripwire

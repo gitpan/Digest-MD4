@@ -11,3 +11,8 @@ Fixed compatibility with Digest::HMAC. add and reset now return
 their context, suggested by 
 Tim Meadowcroft <Tim.Meadowcroft@swapswire.com>. Thanks Tim.
 
+*** 2003/10/30 Version 1.2
+
+Rebuilt from Digest::MD5 1.30, to acheive Digest:: spec compatibility
+
+

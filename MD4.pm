@@ -1,229 +1,331 @@
-# $Id: MD4.pm,v 1.2 2001/07/30 21:58:13 mikem Exp $
 package Digest::MD4;
 
 use strict;
-use vars qw($VERSION @ISA @EXPORT);
+use vars qw($VERSION @ISA @EXPORT_OK);
+
+$VERSION = '1.2';  # $Date: 2003/10/09 09:26:59 $
 
 require Exporter;
+*import = \&Exporter::import;
+@EXPORT_OK = qw(md4 md4_hex md4_base64);
+
 require DynaLoader;
-require AutoLoader;
+@ISA=qw(DynaLoader);
 
-@ISA = qw(Exporter AutoLoader DynaLoader);
-# Items to export into callers namespace by default. Note: do not export
-# names by default without a very good reason. Use EXPORT_OK instead.
-# Do not simply export all your public functions/methods/constants.
-@EXPORT = qw(
-	
-);
-$VERSION = '1.1';
+eval {
+    Digest::MD4->bootstrap($VERSION);
+};
+if ($@) {
+    my $olderr = $@;
+    eval {
+	# Try to load the pure perl version
+	require Digest::Perl::MD4;
 
-bootstrap Digest::MD4 $VERSION;
-
-# Preloaded methods go here.
-
-sub addfile
-{
-    no strict 'refs';	# Countermand any strct refs in force so that we
-			# can still handle file-handle names.
-
-    my ($self, $handle) = @_;
-    my ($package, $file, $line) = caller;
-    my ($data) = '';
-
-    if (!ref($handle))
-    {
-	# Old-style passing of filehandle by name. We need to add
-	# the calling package scope qualifier, if there is not one
-	# supplied already.
-
-	$handle = $package . '::' . $handle unless ($handle =~ /(\:\:|\')/);
+	Digest::Perl::MD4->import(qw(md4 md4_hex md4_base64));
+	push(@ISA, "Digest::Perl::MD4");  # make OO interface work
+    };
+    if ($@) {
+	# restore the original error
+	die $olderr;
     }
-
-    while (read($handle, $data, 1024))
-    {
-	$self->add($data);
-    }
-    return $self;
 }
-
-sub hexdigest
-{
-    my ($self) = shift;
-
-    unpack("H*", ($self->digest()));
+else {
+    *reset = \&new;
 }
-
-sub hash
-{
+# hash() was in Digest::MD4 1.1. Deprecated
+sub hash {
     my ($self, $data) = @_;
-
     if (ref($self))
     {
 	# This is an instance method call so reset the current context
-
 	$self->reset();
     }
     else
     {
 	# This is a static method invocation, create a temporary MD4 context
-
 	$self = new Digest::MD4;
     }
-
+    
     # Now do the hash
-
     $self->add($data);
     $self->digest();
 }
-
-sub hexhash
-{
-    my ($self, $data) = @_;
-
-    unpack("H*", ($self->hash($data)));
-}
-
-# Autoload methods go after =cut, and are processed by the autosplit program.
 
 1;
 __END__
 
 =head1 NAME
 
-Digest::MD4 - Perl interface to the RSA Data Security Inc. MD4 Message-Digest Algorithm
+Digest::MD4 - Perl interface to the MD4 Algorithm
 
 =head1 SYNOPSIS
 
-    use Digest::MD4;
-    
-    $context = new Digest::MD4;
-    $context->reset();
-    
-    $context->add(LIST);
-    $context->addfile(HANDLE);
-    
-    $digest = $context->digest();
-    $string = $context->hexdigest();
+ # Functional style
+ use Digest::MD4 qw(md4 md4_hex md4_base64);
 
-    $digest = Digest::MD4->hash(SCALAR);
-    $string = Digest::MD4->hexhash(SCALAR);
+ $digest = md4($data);
+ $digest = md4_hex($data);
+ $digest = md4_base64($data);
+
+ # OO style
+ use Digest::MD4;
+
+ $ctx = Digest::MD4->new;
+
+ $ctx->add($data);
+ $ctx->addfile(*FILE);
+
+ $digest = $ctx->digest;
+ $digest = $ctx->hexdigest;
+ $digest = $ctx->b64digest;
 
 =head1 DESCRIPTION
 
-The B<Digest::MD4> module allows you to use the RSA Data Security Inc. MD4
-Message Digest algorithm from within Perl programs.
+The C<Digest::MD4> module allows you to use the RSA Data Security
+Inc. MD4 Message Digest algorithm from within Perl programs.  The
+algorithm takes as input a message of arbitrary length and produces as
+output a 128-bit "fingerprint" or "message digest" of the input.
 
-A new MD4 context object is created with the B<new> operation.
-Multiple simultaneous digest contexts can be maintained, if desired.
-The context is updated with the B<add> operation which adds the
-strings contained in the I<LIST> parameter. Note, however, that
-C<add('foo', 'bar')>, C<add('foo')> followed by C<add('bar')> and
-C<add('foobar')> should all give the same result.
+The C<Digest::MD4> module provide a procedural interface for simple
+use, as well as an object oriented interface that can handle messages
+of arbitrary length and which can read files directly.
 
-The final message digest value is returned by the B<digest> operation
-as a 16-byte binary string. This operation delivers the result of
-B<add> operations since the last B<new> or B<reset> operation. Note
-that the B<digest> operation is effectively a destructive, read-once
-operation. Once it has been performed, the context must be B<reset>
-before being used to calculate another digest value.
+=head1 FUNCTIONS
 
-Several convenience functions are also provided. The B<addfile>
-operation takes an open file-handle and reads it until end-of file in
-1024 byte blocks adding the contents to the context. The file-handle
-can either be specified by name or passed as a type-glob reference, as
-shown in the examples below. The B<hexdigest> operation calls
-B<digest> and returns the result as a printable string of hexdecimal
-digits. This is exactly the same operation as performed by the
-B<unpack> operation in the examples below.
+The following functions are provided by the C<Digest::MD4> module.
+None of these functions are exported by default.
 
-The B<hash> operation can act as either a static member function (ie
-you invoke it on the MD4 class as in the synopsis above) or as a
-normal virtual function. In both cases it performs the complete MD4
-cycle (reset, add, digest) on the supplied scalar value. This is
-convenient for handling small quantities of data. When invoked on the
-class a temporary context is created. When invoked through an already
-created context object, this context is used. The latter form is
-slightly more efficient. The B<hexhash> operation is analogous to
-B<hexdigest>.
+=over 4
+
+=item md4($data,...)
+
+This function will concatenate all arguments, calculate the MD4 digest
+of this "message", and return it in binary form.  The returned string
+will be 16 bytes long.
+
+The result of md4("a", "b", "c") will be exactly the same as the
+result of md4("abc").
+
+=item md4_hex($data,...)
+
+Same as md4(), but will return the digest in hexadecimal form. The
+length of the returned string will be 32 and it will only contain
+characters from this set: '0'..'9' and 'a'..'f'.
+
+=item md4_base64($data,...)
+
+Same as md4(), but will return the digest as a base64 encoded string.
+The length of the returned string will be 22 and it will only contain
+characters from this set: 'A'..'Z', 'a'..'z', '0'..'9', '+' and
+'/'.
+
+Note that the base64 encoded string returned is not padded to be a
+multiple of 4 bytes long.  If you want interoperability with other
+base64 encoded md4 digests you might want to append the redundant
+string "==" to the result.
+
+=back
+
+=head1 METHODS
+
+The object oriented interface to C<Digest::MD4> is described in this
+section.  After a C<Digest::MD4> object has been created, you will add
+data to it and finally ask for the digest in a suitable format.  A
+single object can be used to calculate multiple digests.
+
+The following methods are provided:
+
+=over 4
+
+=item $md4 = Digest::MD4->new
+
+The constructor returns a new C<Digest::MD4> object which encapsulate
+the state of the MD4 message-digest algorithm.
+
+If called as an instance method (i.e. $md4->new) it will just reset the
+state the object to the state of a newly created object.  No new
+object is created in this case.
+
+=item $md4->reset
+
+This is just an alias for $md4->new.
+
+=item $md4->clone
+
+This a copy of the $md4 object. It is useful when you do not want to
+destroy the digests state, but need an intermediate value of the
+digest, e.g. when calculating digests iteratively on a continuous data
+stream.  Example:
+
+    my $md4 = Digest::MD4->new;
+    while (<>) {
+	$md4->add($_);
+	print "Line $.: ", $md4->clone->hexdigest, "\n";
+    }
+
+=item $md4->add($data,...)
+
+The $data provided as argument are appended to the message we
+calculate the digest for.  The return value is the $md4 object itself.
+
+All these lines will have the same effect on the state of the $md4
+object:
+
+    $md4->add("a"); $md4->add("b"); $md4->add("c");
+    $md4->add("a")->add("b")->add("c");
+    $md4->add("a", "b", "c");
+    $md4->add("abc");
+
+=item $md4->addfile($io_handle)
+
+The $io_handle will be read until EOF and its content appended to the
+message we calculate the digest for.  The return value is the $md4
+object itself.
+
+The addfile() method will croak() if it fails reading data for some
+reason.  If it croaks it is unpredictable what the state of the $md4
+object will be in. The addfile() method might have been able to read
+the file partially before it failed.  It is probably wise to discard
+or reset the $md4 object if this occurs.
+
+In most cases you want to make sure that the $io_handle is in
+C<binmode> before you pass it as argument to the addfile() method.
+
+=item $md4->digest
+
+Return the binary digest for the message.  The returned string will be
+16 bytes long.
+
+Note that the C<digest> operation is effectively a destructive,
+read-once operation. Once it has been performed, the C<Digest::MD4>
+object is automatically C<reset> and can be used to calculate another
+digest value.  Call $md4->clone->digest if you want to calculate the
+digest without reseting the digest state.
+
+=item $md4->hexdigest
+
+Same as $md4->digest, but will return the digest in hexadecimal
+form. The length of the returned string will be 32 and it will only
+contain characters from this set: '0'..'9' and 'a'..'f'.
+
+=item $md4->b64digest
+
+Same as $md4->digest, but will return the digest as a base64 encoded
+string.  The length of the returned string will be 22 and it will only
+contain characters from this set: 'A'..'Z', 'a'..'z', '0'..'9', '+'
+and '/'.
+
+
+The base64 encoded string returned is not padded to be a multiple of 4
+bytes long.  If you want interoperability with other base64 encoded
+md4 digests you might want to append the string "==" to the result.
+
+=back
+
 
 =head1 EXAMPLES
 
-    use Digest::MD4;
-    
-    $md4 = new Digest::MD4;
-    $md4->add('foo', 'bar');
-    $md4->add('baz');
-    $digest = $md4->digest();
-    
-    print("Digest is " . unpack("H*", $digest) . "\n");
+The simplest way to use this library is to import the md4_hex()
+function (or one of its cousins):
 
-The above example would print out the message
+    use Digest::MD4 qw(md4_hex);
+    print "Digest is ", md4_hex("foobarbaz"), "\n";
+
+The above example would print out the message:
 
     Digest is 6df23dc03f9b54cc38a0fc1483df6e21
 
-provided that the implementation is working correctly.
-
-Remembering the Perl motto ("There's more than one way to do it"), the
-following should all give the same result:
+The same checksum can also be calculated in OO style:
 
     use Digest::MD4;
-    $md4 = new Digest::MD4;
+    
+    $md4 = Digest::MD4->new;
+    $md4->add('foo', 'bar');
+    $md4->add('baz');
+    $digest = $md4->hexdigest;
+    
+    print "Digest is $digest\n";
 
-    die "Can't open /etc/passwd ($!)\n" unless open(P, "/etc/passwd");
+With OO style you can break the message arbitrary.  This means that we
+are no longer limited to have space for the whole message in memory, i.e.
+we can handle messages of any size.
 
-    seek(P, 0, 0);
-    $md4->reset;
-    $md4->addfile(P);
-    $d = $md4->hexdigest;
-    print "addfile (handle name) = $d\n";
+This is useful when calculating checksum for files:
 
-    seek(P, 0, 0);
-    $md4->reset;
-    $md4->addfile(\*P);
-    $d = $md4->hexdigest;
-    print "addfile (type-glob reference) = $d\n";
+    use Digest::MD4;
 
-    seek(P, 0, 0);
-    $md4->reset;
-    while (<P>)
-    {
+    my $file = shift || "/etc/passwd";
+    open(FILE, $file) or die "Can't open '$file': $!";
+    binmode(FILE);
+
+    $md4 = Digest::MD4->new;
+    while (<FILE>) {
         $md4->add($_);
     }
-    $d = $md4->hexdigest;
-    print "Line at a time = $d\n";
+    close(FILE);
+    print $md4->b64digest, " $file\n";
 
-    seek(P, 0, 0);
-    $md4->reset;
-    $md4->add(<P>);
-    $d = $md4->hexdigest;
-    print "All lines at once = $d\n";
+Or we can use the addfile method for more efficient reading of
+the file:
 
-    seek(P, 0, 0);
-    $md4->reset;
-    while (read(P, $data, (rand % 128) + 1))
-    {
-        $md4->add($data);
-    }
-    $d = $md4->hexdigest;
-    print "Random chunks = $d\n";
+    use Digest::MD4;
 
-    seek(P, 0, 0);
-    $md4->reset;
-    undef $/;
-    $data = <P>;
-    $d = $md4->hexhash($data);
-    print "Single string = $d\n";
+    my $file = shift || "/etc/passwd";
+    open(FILE, $file) or die "Can't open '$file': $!";
+    binmode(FILE);
 
-    close(P);
+    print Digest::MD4->new->addfile(*FILE)->hexdigest, " $file\n";
 
-=head1 NOTE
+Perl 5.8 support Unicode characters in strings.  Since the MD4
+algorithm is only defined for strings of bytes, it can not be used on
+strings that contains chars with ordinal number above 255.  The MD4
+functions and methods will croak if you try to feed them such input
+data:
 
-The MD4 extension may be redistributed under the same terms as Perl.
-The MD4 algorithm is defined in RFC1320. The basic C code implementing
-the algorithm is derived from that in the RFC and is covered by the
-following copyright:
+    use Digest::MD4 qw(md4_hex);
 
-=over 8
+    my $str = "abc\x{300}";
+    print md4_hex($str), "\n";  # croaks
+    # Wide character in subroutine entry
+
+What you can do is calculate the MD4 checksum of the UTF-8
+representation of such strings.  This is achieved by filtering the
+string through encode_utf8() function:
+
+    use Digest::MD4 qw(md4_hex);
+    use Encode qw(encode_utf8);
+
+    my $str = "abc\x{300}";
+    print md4_hex(encode_utf8($str)), "\n";
+    # 8c2d46911f3f5a326455f0ed7a8ed3b3
+
+=head1 SEE ALSO
+
+L<Digest>,
+L<Digest::MD2>,
+L<Digest::SHA1>,
+L<Digest::HMAC>
+
+L<md4sum(1)>
+
+RFC 1320
+
+=head1 COPYRIGHT
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+ Copyright 1998-2003 Gisle Aas.
+ Copyright 1995-1996 Neil Winton.
+ Copyright 1991-1992 RSA Data Security, Inc.
+
+The MD4 algorithm is defined in RFC 1320. This implementation is
+derived from the reference C code in RFC 1320 which is covered by
+the following copyright statement:
+
+=over 4
+
+=item
 
    Copyright (C) 1990-2, RSA Data Security, Inc. All rights reserved.
 
@@ -249,16 +351,15 @@ following copyright:
 
 This copyright does not prohibit distribution of any version of Perl
 containing this extension under the terms of the GNU or Artistic
-licences.
+licenses.
 
-=head1 AUTHOR
+=head1 AUTHORS
 
-The MD4 interface was adapted by Mike McCauley
-(C<mikem@open.com.au>), based entirely on MD5-1.7, written by Neil Winton
+The original C<MD5> interface was written by Neil Winton
 (C<N.Winton@axion.bt.co.uk>).
 
-=head1 SEE ALSO
+The C<Digest::MD5> module is written by Gisle Aas <gisle@ActiveState.com>.
 
-perl(1).
+The C<Digest::MD4> module is derived from Digest::MD5 by Mike McCauley (mikem@open.com.au)
 
 =cut

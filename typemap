@@ -1,3 +1,5 @@
-# $Id: typemap,v 1.1 2000/08/27 23:12:24 mikem Exp $
-TYPEMAP
-Digest::MD4		T_PTROBJ
+MD4_CTX*	T_MD4_CTX
+
+INPUT
+T_MD4_CTX
+	$var = get_md4_ctx($arg)
