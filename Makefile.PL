@@ -2,8 +2,8 @@
 
 BEGIN { require 5.004 }
 use strict;
-use Config qw(%Config);
 use ExtUtils::MakeMaker;
+use Config qw(%Config);
 
 my @extra;
 @extra = (DEFINE => "-DU32_ALIGNMENT_REQUIRED") unless free_u32_alignment();

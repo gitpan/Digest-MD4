@@ -28,18 +28,18 @@ f178f04d0d8305c328a3de281313d642  rfc1320.txt
 EOT
 } elsif ("\n" eq "\015") { # MacOS
     $EXPECT = <<EOT;
-b74d1f6a7841bc6d752fecb516006770  Changes
+c67e8b539cbb60492ba97ed2183532ad  Changes
 a64a8e41ca2fe973ffbb46aa66d70bd2  README
-1918662685db34cd9803e5a7393050cc  MD4.pm
+90290a20c8b7e09d2899610394819bc0  MD4.pm
 9db8b845da6b42d7f3cbaf690504dfb4  MD4.xs
 2089ab664427233cd7043d91f0021ff8  rfc1320.txt
 EOT
 } else {
     # This is the output of: 'md4sum Changes README MD4.pm MD4.xs rfc1320.txt'
     $EXPECT = <<EOT;
-b74d1f6a7841bc6d752fecb516006770  Changes
+c67e8b539cbb60492ba97ed2183532ad  Changes
 a64a8e41ca2fe973ffbb46aa66d70bd2  README
-1918662685db34cd9803e5a7393050cc  MD4.pm
+90290a20c8b7e09d2899610394819bc0  MD4.pm
 9db8b845da6b42d7f3cbaf690504dfb4  MD4.xs
 2089ab664427233cd7043d91f0021ff8  rfc1320.txt
 EOT

@@ -15,3 +15,4 @@ t/files.t		Check a few files.
 t/md4-aaa.t		Exercise padding code
 t/utf8.t		Try some Unicode strings
 Changes			Version history
+META.yml                                 Module meta-data (added by MakeMaker)

@@ -19,4 +19,8 @@ Rebuilt from Digest::MD5 1.30, to acheive Digest:: spec compatibility
 
 Fixed compile errors reported while being built unders windows cywin with Perl 5.8.2
 
+*** 2004/09/13 Version 1.4
+
+Fixed Makefile problems on some versions of perl 5.8.0
+
 
