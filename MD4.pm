@@ -3,7 +3,7 @@ package Digest::MD4;
 use strict;
 use vars qw($VERSION @ISA @EXPORT_OK);
 
-$VERSION = '1.4';  # $Date: 2004/09/13 09:26:59 $
+$VERSION = '1.5';  # ActivePerl version adds hexhash() for compatibility
 
 require Exporter;
 *import = \&Exporter::import;
@@ -32,7 +32,7 @@ if ($@) {
 else {
     *reset = \&new;
 }
-# hash() was in Digest::MD4 1.1. Deprecated
+# hash() and hexhash() was in Digest::MD4 1.1. Deprecated
 sub hash {
     my ($self, $data) = @_;
     if (ref($self))
@@ -49,6 +49,13 @@ sub hash {
     # Now do the hash
     $self->add($data);
     $self->digest();
+}
+
+sub hexhash
+{
+    my ($self, $data) = @_;
+
+    unpack("H*", ($self->hash($data)));
 }
 
 1;
