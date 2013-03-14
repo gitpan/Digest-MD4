@@ -1,4 +1,4 @@
-/* $Id: MD4.xs,v 1.40 2003/07/22 05:59:27 gisle Exp $ */
+/* $Id: MD4.xs,v 1.4 2013/03/14 05:51:35 mikem Exp mikem $ */
 
 /* 
  * This library is free software; you can redistribute it and/or
@@ -90,43 +90,9 @@ extern "C" {
  * really does have 32 bits then this is a no-op.
  */
 #if BYTEORDER > 0x4321 || defined(TRUNCATE_U32)
-  #define TO32(x)    ((x) &  0xFFFFffff)
   #define TRUNC32(x) ((x) &= 0xFFFFffff)
 #else
-  #define TO32(x)    (x)
   #define TRUNC32(x) /*nothing*/
-#endif
-
-/* The MD4 algorithm is defined in terms of little endian 32-bit
- * values.  The following macros (and functions) allow us to convert
- * between native integers and such values.
- */
-#undef BYTESWAP
-#ifndef U32_ALIGNMENT_REQUIRED
- #if BYTEORDER == 0x1234      /* 32-bit little endian */
-  #define BYTESWAP(x) (x)     /* no-op */
-
- #elif BYTEORDER == 0x4321    /* 32-bit big endian */
-  #define BYTESWAP(x) 	((((x)&0xFF)<<24)	\
-			|(((x)>>24)&0xFF)	\
-			|(((x)&0x0000FF00)<<8)	\
-			|(((x)&0x00FF0000)>>8)	)
- #endif
-#endif
-
-#ifndef BYTESWAP
-static void u2s(U32 u, U8* s)
-{
-    *s++ = (U8)(u         & 0xFF);
-    *s++ = (U8)((u >>  8) & 0xFF);
-    *s++ = (U8)((u >> 16) & 0xFF);
-    *s   = (U8)((u >> 24) & 0xFF);
-}
-
-#define s2u(s,u) ((u) =  (U32)(*s)            |  \
-                        ((U32)(*(s+1)) << 8)  |  \
-                        ((U32)(*(s+2)) << 16) |  \
-                        ((U32)(*(s+3)) << 24))
 #endif
 
 #define MD4_CTX_SIGNATURE 200003166
@@ -511,10 +477,9 @@ clone(self)
 	SV* self
     PREINIT:
 	MD4_CTX* cont = get_md4_ctx(self);
-	char *myname = sv_reftype(SvRV(self),TRUE);
+	const char *myname = sv_reftype(SvRV(self),TRUE);
 	MD4_CTX* context;
     PPCODE:
-	STRLEN my_na;
 	New(55, context, 1, MD4_CTX);
 	ST(0) = sv_newmortal();
 	sv_setref_pv(ST(0), myname , (void*)context);

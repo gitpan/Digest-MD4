@@ -28,5 +28,12 @@ Fixed Makefile problems on some versions of perl 5.8.0
 ActivePerl version adds hexhash() for compatibility
 Contributed by Gisle Aas
 
+*** 200?/??/?? Version 1.6
+
+Fixed example output in doc in MD4.pm. Reported by jbwaters@gmail.com.
+
+*** 2013/03/14 Version 1.7
+Removed defunct code that prevented building on 64 bit platforms, patch by
+zefram
 
 

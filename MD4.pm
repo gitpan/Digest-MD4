@@ -3,7 +3,7 @@ package Digest::MD4;
 use strict;
 use vars qw($VERSION @ISA @EXPORT_OK);
 
-$VERSION = '1.5';  # ActivePerl version adds hexhash() for compatibility
+$VERSION = '1.7';  # ActivePerl version adds hexhash() for compatibility
 
 require Exporter;
 *import = \&Exporter::import;
@@ -240,7 +240,7 @@ function (or one of its cousins):
 
 The above example would print out the message:
 
-    Digest is 6df23dc03f9b54cc38a0fc1483df6e21
+    Digest is b2b2b528f632f554ae9cb2c02c904eeb
 
 The same checksum can also be calculated in OO style:
 
@@ -304,7 +304,7 @@ string through encode_utf8() function:
 
     my $str = "abc\x{300}";
     print md4_hex(encode_utf8($str)), "\n";
-    # 8c2d46911f3f5a326455f0ed7a8ed3b3
+    # fc2ef2836f9bc3f44ed6d7adee2f1533
 
 =head1 SEE ALSO
 
