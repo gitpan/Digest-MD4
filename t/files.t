@@ -20,28 +20,28 @@ use Digest::MD4 qw(md4 md4_hex md4_base64);
 my $EXPECT;
 if (ord "A" == 193) { # EBCDIC
     $EXPECT = <<EOT;
-460c066b99d69fa220ad162fa864937d  Changes
-0dbd12438619d37abe39c41e4584ebe0  README
-de9b72d1272b739368ee1bcecd4f8b5c  MD4.pm
+f7d5655846e857fa6408c81c9053295b  Changes                                                          
+0dbd12438619d37abe39c41e4584ebe0  README                                                           
+32bb256a23ab53e250d08add17e0d10d  MD4.pm                                                           
 3ae533df68e0be3ee2dac67329c8dad0  MD4.xs
 f178f04d0d8305c328a3de281313d642  rfc1320.txt
 EOT
 } elsif ("\n" eq "\015") { # MacOS
     $EXPECT = <<EOT;
-46b2ccaaf11848f82c46f763bb88bafb  Changes
-a64a8e41ca2fe973ffbb46aa66d70bd2  README
-d6a7c9f33698f0e14782d42b8ac64c92  MD4.pm
-6ef61bd88dfbb1f1401c2d8f3612d5fd  MD4.xs
-2089ab664427233cd7043d91f0021ff8  rfc1320.txt
+b22642ac3d6cd4c6d38b19b783fd57ee  Changes                                                          
+a64a8e41ca2fe973ffbb46aa66d70bd2  README                                                           
+51c04be2846a2c200cdbf2b935ba528a  MD4.pm                                                           
+6ef61bd88dfbb1f1401c2d8f3612d5fd  MD4.xs                                                           
+2089ab664427233cd7043d91f0021ff8  rfc1320.txt        
 EOT
 } else {
     # This is the output of: 'md4sum Changes README MD4.pm MD4.xs rfc1320.txt'
     $EXPECT = <<EOT;
-46b2ccaaf11848f82c46f763bb88bafb  Changes
-a64a8e41ca2fe973ffbb46aa66d70bd2  README
-9b1da8aa8ca6746c3f280e31fbe413f5  MD4.pm
-6ef61bd88dfbb1f1401c2d8f3612d5fd  MD4.xs
-2089ab664427233cd7043d91f0021ff8  rfc1320.txt
+b22642ac3d6cd4c6d38b19b783fd57ee  Changes                                                          
+a64a8e41ca2fe973ffbb46aa66d70bd2  README                                                           
+51c04be2846a2c200cdbf2b935ba528a  MD4.pm                                                           
+6ef61bd88dfbb1f1401c2d8f3612d5fd  MD4.xs                                                           
+2089ab664427233cd7043d91f0021ff8  rfc1320.txt        
 EOT
 }
 

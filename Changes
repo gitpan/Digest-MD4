@@ -33,7 +33,9 @@ Contributed by Gisle Aas
 Fixed example output in doc in MD4.pm. Reported by jbwaters@gmail.com.
 
 *** 2013/03/14 Version 1.7
-Removed defunct code that prevented building on 64 bit platforms, patch by
+Removed defunct code that caused incorrect error message when building on 64 bit platforms, patch by
 zefram
 
-
+*** 2013/03/14 Version 1.8
+Fixed a test error in files.t. Corrected the comment to do with the reason in
+verison 1.7
