@@ -3,7 +3,7 @@ package Digest::MD4;
 use strict;
 use vars qw($VERSION @ISA @EXPORT_OK);
 
-$VERSION = '1.8';  # ActivePerl version adds hexhash() for compatibility
+$VERSION = '1.9';  # ActivePerl version adds hexhash() for compatibility
 
 require Exporter;
 *import = \&Exporter::import;
@@ -367,6 +367,6 @@ The original C<MD5> interface was written by Neil Winton
 
 The C<Digest::MD5> module is written by Gisle Aas <gisle@ActiveState.com>.
 
-The C<Digest::MD4> module is derived from Digest::MD5 by Mike McCauley (mikem@open.com.au)
+The C<Digest::MD4> module is derived from Digest::MD5 by Mike McCauley (mikem@airspayce.com)
 
 =cut

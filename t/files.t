@@ -11,37 +11,40 @@ use strict;
 use Digest::MD4 qw(md4 md4_hex md4_base64);
 
 # To update the EBCDIC section even on a Latin 1 platform,
-# run this script with $ENV{EBCDIC_MD4SUM} set to a true value.
+# run this script with $ENV{EBCDIC_MD4SUM} set to a true value:
+# EBCDIC_MD4SUM=1 perl t/files.t
 # (You'll need to have Perl 5.7.3 or later, to have the Encode installed.)
 # (And remember that under the Perl core distribution you should
 #  also have the $ENV{PERL_CORE} set to a true value.)
-# Similarly, to update MacOS section, run with $ENV{MAC_MD4SUM} set.
+# Similarly, to update MacOS section, run with $ENV{MAC_MD4SUM} set:
+# MAC_MD4SUM=1 perl t/files.t
 
 my $EXPECT;
 if (ord "A" == 193) { # EBCDIC
     $EXPECT = <<EOT;
-f7d5655846e857fa6408c81c9053295b  Changes                                                          
-0dbd12438619d37abe39c41e4584ebe0  README                                                           
-32bb256a23ab53e250d08add17e0d10d  MD4.pm                                                           
+61fe4ecdcfbe1ff572e052b43fd540de  Changes
+0dbd12438619d37abe39c41e4584ebe0  README
+ee852e2732fc4e158b1ca6b35e8f22da  MD4.pm
 3ae533df68e0be3ee2dac67329c8dad0  MD4.xs
 f178f04d0d8305c328a3de281313d642  rfc1320.txt
 EOT
 } elsif ("\n" eq "\015") { # MacOS
+    # This is the output of: 'md4sum Changes README MD4.pm MD4.xs rfc1320.txt'
     $EXPECT = <<EOT;
-b22642ac3d6cd4c6d38b19b783fd57ee  Changes                                                          
-a64a8e41ca2fe973ffbb46aa66d70bd2  README                                                           
-51c04be2846a2c200cdbf2b935ba528a  MD4.pm                                                           
-6ef61bd88dfbb1f1401c2d8f3612d5fd  MD4.xs                                                           
-2089ab664427233cd7043d91f0021ff8  rfc1320.txt        
+1848e8b9f8982557b7358944c320908b  Changes
+a64a8e41ca2fe973ffbb46aa66d70bd2  README
+8f1d87025a08f7b1bdb968858d6c4044  MD4.pm
+6ef61bd88dfbb1f1401c2d8f3612d5fd  MD4.xs
+2089ab664427233cd7043d91f0021ff8  rfc1320.txt
 EOT
 } else {
     # This is the output of: 'md4sum Changes README MD4.pm MD4.xs rfc1320.txt'
     $EXPECT = <<EOT;
-b22642ac3d6cd4c6d38b19b783fd57ee  Changes                                                          
-a64a8e41ca2fe973ffbb46aa66d70bd2  README                                                           
-51c04be2846a2c200cdbf2b935ba528a  MD4.pm                                                           
-6ef61bd88dfbb1f1401c2d8f3612d5fd  MD4.xs                                                           
-2089ab664427233cd7043d91f0021ff8  rfc1320.txt        
+1848e8b9f8982557b7358944c320908b  Changes
+a64a8e41ca2fe973ffbb46aa66d70bd2  README
+8f1d87025a08f7b1bdb968858d6c4044  MD4.pm
+6ef61bd88dfbb1f1401c2d8f3612d5fd  MD4.xs
+2089ab664427233cd7043d91f0021ff8  rfc1320.txt
 EOT
 }
 

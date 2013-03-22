@@ -39,3 +39,6 @@ zefram
 *** 2013/03/14 Version 1.8
 Fixed a test error in files.t. Corrected the comment to do with the reason in
 verison 1.7
+
+*** 2013-03-22 Version 1.9
+Updated author and distribution location details to airspayce.com
